@@ -72,10 +72,9 @@ tasks.register("awa") {
     // 需要排除的目录名
     val excludeDirs = setOf<String>(
         "build",
-        "package",
         "releases",
         "Collection",
-        "知乎爬虫"
+        "OolongPrivateFiles"
     )
     
     // 需要排除的子路径

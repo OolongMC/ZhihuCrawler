@@ -8,7 +8,6 @@ build
 /cookie.txt
 /releases
 /tmp
-/package
 
 # Ignore Kotlin plugin data
 .kotlin
