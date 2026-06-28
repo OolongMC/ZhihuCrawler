@@ -12,8 +12,11 @@
 2. 断点续传(现在其实可以，只要输入的URL是上次存档中的next中的URL)。
 
 使用到的开源项目：
+
 [JLine](https://jline.org/) : 输出美化。
+
 [Jackson](https://github.com/FasterXML/jackson) : Json解析。
+
 [curl-impersonate](https://github.com/lwthiker/curl-impersonate) : 模拟真实浏览器请求。
 
 𝓒𝓱𝓲𝓷𝓪_𝓞𝓸𝓵𝓸𝓷𝓰.
