@@ -21,3 +21,11 @@
 由于改用Netscape格式的cookie，所以移除了cookie加载。
 
 发布0.2版本。
+
+# 2026.6.29
+
+移动`com.github.oolongmc.application.ZhihuCrawler.Crawler.GetMethod`至`com.github.oolongmc.application.ZhihuCrawler.Config.GetMethod`，为下次更新作准备。
+
+考虑改变版本号规则。
+
+添加`com.github.oolongmc.application.ZhihuCrawler.Config`类，打算添加配置JSON文件来实现断点续传等。

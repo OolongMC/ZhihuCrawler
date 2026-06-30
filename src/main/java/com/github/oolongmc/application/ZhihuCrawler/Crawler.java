@@ -9,7 +9,6 @@ import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
@@ -25,7 +24,7 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
 
-public class Crawler{
+public final class Crawler{
     /**
      * 问题信息:
      */
@@ -33,17 +32,9 @@ public class Crawler{
     /**
      * 捕获网页需要:
      */
-    private final static String[] PARAMS = {    "include", "data[*].is_normal,admin_closed_comment,reward_info,is_collapsed,annotation_action,annotation_detail,collapse_reason,is_sticky,collapsed_by,suggest_edit,comment_count,can_comment,content,editable_content,attachment,voteup_count,reshipment_settings,comment_permission,created_time,updated_time,review_info,relevant_info,question,excerpt,is_labeled,paid_info,paid_info_content,reaction_instruction,relationship.is_authorized,is_author,voting,is_thanked,is_nothelp;data[*].author.follower_count,vip_info,kvip_info,badge[*].topics;data[*].settings.table_of_content.enabled", "limit", "10", "offset", "0", "order", "default", "ws_qiangzhisafe", "1"};
-    private final static String[] HEADERS = {
-        "User-Agent", "Mozilla/5.0 (Linux 5.10.43; OXF-AN10; aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-        "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8",
-        "Accept-Encoding", "gzip, deflate, br",
-        "Upgrade-Insecure-Requests", "1",
-        "Sec-Fetch-Dest", "document",
-        "Sec-Fetch-Mode", "navigate",
-        "Sec-Fetch-Site", "none",
-        "Sec-Fetch-User", "?1"
+    private static final String[] PARAMS = {    "include", "data[*].is_normal,admin_closed_comment,reward_info,is_collapsed,annotation_action,annotation_detail,collapse_reason,is_sticky,collapsed_by,suggest_edit,comment_count,can_comment,content,editable_content,attachment,voteup_count,reshipment_settings,comment_permission,created_time,updated_time,review_info,relevant_info,question,excerpt,is_labeled,paid_info,paid_info_content,reaction_instruction,relationship.is_authorized,is_author,voting,is_thanked,is_nothelp;data[*].author.follower_count,vip_info,kvip_info,badge[*].topics;data[*].settings.table_of_content.enabled", "limit", "10", "offset", "0", "order", "default", "ws_qiangzhisafe", "1"};
+    private static final String[] HEADERS = {
+        "User-Agent", "Mozilla/5.0 (Linux 5.10.43; OXF-AN10; aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
     };
     private static Path cookie = null;
     private static String url = null;
@@ -51,7 +42,7 @@ public class Crawler{
      * 用于curl-impersonate的参数。
      * 此命令来自于curl-impersonate项目的curl_chrome116脚本。
      */
-    private static String[] curlArgs = {
+    private static final String[] CURL_ARGS = {
         "--ciphers", "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,ECDHE-RSA-AES128-SHA,ECDHE-RSA-AES256-SHA,AES128-GCM-SHA256,AES256-GCM-SHA384,AES128-SHA,AES256-SHA", 
         "-H", "sec-ch-ua: \"Chromium\";v=\"116\", \"Not)A;Brand\";v=\"24\", \"Google Chrome\";v=\"116\"", 
         "-H", "sec-ch-ua-mobile: ?0", 
@@ -83,40 +74,22 @@ public class Crawler{
         .DEFAULT
         .foreground(255, 192, 203);
     private static Terminal terminal = null;
-    /**
-     * 爬取方法:
-     */
-    public enum GetMethod{
-        URL("使用JAVA的URL类"),
-        CHROME("使用curl-impersonate项目");
-        
-        private String wayDescription;
-        
-        private GetMethod(String wayDescription){
-            this.wayDescription = wayDescription;
-        }
-        
-        public String getWayDescription(){
-            return wayDescription;
-        }
-    }
+    
     
     /**
      * 爬虫主程序。
      */
-    public static void ZhihuCrawler (String url, GetMethod method, Path applicationPath, Path cookieFilePath) throws IOException, InterruptedException{
+    public static void ZhihuCrawler (String url, Config.GetMethod method, Path applicationPath, Path cookieFilePath) throws IOException, InterruptedException{
         Crawler.url = url;
         terminal = TerminalBuilder
             .builder()
             .system(true)
             .jansi(true)
             .build();
-        Print.basePrint(new AttributedString("欢迎使用ZhihuCrawler\n", GREEN), terminal);
-        Files.createDirectories(Paths.get("./Collection/"));
         /*
         try{
             if(cookieFilePath == null){
-                cookie = Files.readString(Paths.get("cookie.txt"));
+                cookie = Files.readString(Path.of("cookie.txt"));
             }else{
                 cookie = Files.readString(cookieFilePath);
             }
@@ -126,7 +99,7 @@ public class Crawler{
         }
         */
         if(cookieFilePath == null){
-            cookie = Paths.get("./cookie.txt");
+            cookie = Path.of("./cookie.txt");
         }else{
             cookie = cookieFilePath;
         }
@@ -216,8 +189,7 @@ public class Crawler{
         Print.basePrint("系统信息:" + os + "_" + arch + "\n");
         
         if(customizeApplicationPath == null){
-            Files.createDirectories(Paths.get("./Collection/.temp/"));
-            applicationPath = Paths.get("./Collection/.temp/curl-impersonate-chrome");
+            applicationPath = Path.of("./Collection/.temp/curl-impersonate-chrome");
             try(InputStream app = Crawler.class.getResourceAsStream("/assets/" + os + "/" + arch + "/curl-impersonate-chrome")){
                 if(app != null){
                     Files.copy(app, applicationPath, StandardCopyOption.REPLACE_EXISTING);
@@ -240,9 +212,9 @@ public class Crawler{
         for(int i = 1;is_end == false ;i++){
             
             // 合成调用命令。
-            String[] command = new String[curlArgs.length + 4];
+            String[] command = new String[CURL_ARGS.length + 4];
             command[0] = applicationPath.toString();
-            System.arraycopy(curlArgs, 0, command, 1, curlArgs.length);
+            System.arraycopy(CURL_ARGS, 0, command, 1, CURL_ARGS.length);
             command[command.length - 3] = url;
             command[command.length - 2] = "-b";
             command[command.length - 1] = cookie.toString();
@@ -317,7 +289,7 @@ public class Crawler{
             return false;// 应付编译器。
         }else{
             try{
-                Files.writeString(Paths.get("Collection/" + questionNumber + '_' + q.paging.page + ".json"), json);
+                Files.writeString(Path.of("Collection/" + questionNumber + '_' + q.paging.page + ".json"), json);
             }catch(IOException e){
                 Print.basePrint(new AttributedString("文件保存失败" + e.getMessage() + "\n", RED), terminal);
             }

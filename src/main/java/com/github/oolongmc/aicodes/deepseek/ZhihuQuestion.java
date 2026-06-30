@@ -49,8 +49,6 @@ public class ZhihuQuestion {
         public boolean is_jump_native;
     }
 
-    // --- 以下是 Target 及其子类的定义 ---
-
     /**
      * 回答的目标内容，包含了答案、作者、问题等详细信息。
      */
@@ -63,6 +61,8 @@ public class ZhihuQuestion {
         public String answer_type;
         /** 附加信息，通常是Base64编码的数据 */
         public String attached_info;
+        /** 附件信息（视频等） */
+        public Attachment attachment;
         /** 作者信息 */
         public Author author;
         /** 业务类型 */
@@ -142,6 +142,65 @@ public class ZhihuQuestion {
     }
 
     /**
+     * 附件信息（视频等）
+     */
+    public static class Attachment {
+        public String attachment_id;
+        public String type;
+        public Video video;
+    }
+
+    /**
+     * 视频信息
+     */
+    public static class Video {
+        public long end_time;
+        public String parent_video_id;
+        public int play_count;
+        public long start_time;
+        public String sub_video_id;
+        public String title;
+        public VideoInfo video_info;
+        public int voteup_count;
+    }
+
+    /**
+     * 视频详细信息
+     */
+    public static class VideoInfo {
+        public double duration;
+        public int height;
+        public boolean is_paid;
+        public boolean is_trial;
+        public int play_count;
+        public Playlist playlist;
+        public String thumbnail;
+        public String type;
+        public String video_id;
+        public int width;
+    }
+
+    /**
+     * 视频播放列表（不同清晰度）
+     */
+    public static class Playlist {
+        public VideoQuality fhd;
+        public VideoQuality hd;
+        public VideoQuality ld;
+        public VideoQuality sd;
+    }
+
+    /**
+     * 视频质量信息
+     */
+    public static class VideoQuality {
+        public int bitrate;
+        public int height;
+        public String url;
+        public int width;
+    }
+
+    /**
      * 标注详情类，用于表示回答上的标注信息（如"无可靠信息来源"）。
      */
     public static class AnnotationDetail {
@@ -210,7 +269,7 @@ public class ZhihuQuestion {
         /** VIP信息（可选） */
         public VipInfo vip_info;
         /** KVIP信息（可选），与vip_info结构相同 */
-        public VipInfo kvip_info;  // ← 添加这个字段
+        public VipInfo kvip_info;
     }
 
     /**
@@ -469,6 +528,8 @@ public class ZhihuQuestion {
         public String url;
         /** 宽度 */
         public int width;
+        /** 附件信息（视频缩略图特有） */
+        public String attached_info;
     }
 
     /**
