@@ -29,3 +29,7 @@
 考虑改变版本号规则。
 
 添加`com.github.oolongmc.application.ZhihuCrawler.Config`类，打算添加配置JSON文件来实现断点续传等。
+
+# 2026.6.30
+
+一点点东西，感觉又要重新写软件的使用逻辑了，斯，我也不知道该怎么描述这次写的内容。虽然现在还编译不了，但我还是先git commit -m吧。

@@ -18,26 +18,17 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Random;
 import java.util.Set;
+import java.util.Arrays;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
 
+/**
+ * 爬虫的核心逻辑。
+ */
 public final class Crawler{
-    /**
-     * 问题信息:
-     */
-    private static String questionNumber = null;
-    /**
-     * 捕获网页需要:
-     */
-    private static final String[] PARAMS = {    "include", "data[*].is_normal,admin_closed_comment,reward_info,is_collapsed,annotation_action,annotation_detail,collapse_reason,is_sticky,collapsed_by,suggest_edit,comment_count,can_comment,content,editable_content,attachment,voteup_count,reshipment_settings,comment_permission,created_time,updated_time,review_info,relevant_info,question,excerpt,is_labeled,paid_info,paid_info_content,reaction_instruction,relationship.is_authorized,is_author,voting,is_thanked,is_nothelp;data[*].author.follower_count,vip_info,kvip_info,badge[*].topics;data[*].settings.table_of_content.enabled", "limit", "10", "offset", "0", "order", "default", "ws_qiangzhisafe", "1"};
-    private static final String[] HEADERS = {
-        "User-Agent", "Mozilla/5.0 (Linux 5.10.43; OXF-AN10; aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    };
-    private static Path cookie = null;
-    private static String url = null;
     /**
      * 用于curl-impersonate的参数。
      * 此命令来自于curl-impersonate项目的curl_chrome116脚本。
@@ -73,69 +64,62 @@ public final class Crawler{
     private static final AttributedStyle PINK = AttributedStyle
         .DEFAULT
         .foreground(255, 192, 203);
-    private static Terminal terminal = null;
-    
-    
-    /**
-     * 爬虫主程序。
-     */
-    public static void ZhihuCrawler (String url, Config.GetMethod method, Path applicationPath, Path cookieFilePath) throws IOException, InterruptedException{
-        Crawler.url = url;
-        terminal = TerminalBuilder
-            .builder()
-            .system(true)
-            .jansi(true)
-            .build();
-        /*
-        try{
-            if(cookieFilePath == null){
-                cookie = Files.readString(Path.of("cookie.txt"));
-            }else{
-                cookie = Files.readString(cookieFilePath);
-            }
-            Print.basePrint("加载cookie成功！\n");
-        }catch(IOException e){
-            Print.basePrint(new AttributedString("未找到cookie.txt，可能无法爬取问题。\n", RED), terminal);
-        }
-        */
-        if(cookieFilePath == null){
-            cookie = Path.of("./cookie.txt");
-        }else{
-            cookie = cookieFilePath;
-        }
-        
-        questionNumber = url.replaceAll("https://www.zhihu.com/api/v4/questions/(\\d+)/feeds.*", "$1");
-        
-        Print.basePrint("开始爬取问题" + questionNumber + "。\n");
-        Print.basePrint("方式: " + method.getWayDescription() + "。\n");
-        try{
-            switch(method){
-                case URL:
-                    catchByJavaBaseUrl();
-                    break;
-                case CHROME:
-                    catchByChromeCurl(applicationPath);
-                    break;
-                default:break;
-            }
-        }finally{
-            terminal.close();
-        }
-    }
     
     /*
      * 直接使用Java自带的方法获取页面，不进行任何配置。
      * @deprecated 成功率极低。
      * 现已彻底无法使用，因为cookie改用Netscape格式。
      */
-    private static void catchByJavaBaseUrl(){
+    private static void catchByJavaBaseUrl(String url, Config config, Terminal terminal){
         boolean is_end = false;
+        StringBuilder cookie = new StringBuilder();
+        try{
+            String netscapeCookie = Files.readString(Path.of(config.cookiePath));
+            // 此处进行Netscape转Header处理。
+            // step 1: 去除注释。
+            String[] builder1 = netscapeCookie.split("\\R");
+            int validLines = 0;
+            for(int line = 0; line < builder1.length; line++){
+                if(builder1[line].startsWith("#")||builder1[line].isEmpty()){
+                    continue;
+                }else{
+                    builder1[validLines] = builder1[line];
+                    validLines++;
+                }
+            }
+            String[] builder2 = Arrays.copyOfRange(builder1, 0, validLines);
+            // step2: 按Tab分割。
+            // 不行，这里必须用List了。
+            List<String> builder3 = new ArrayList<>();
+            for(int i = 0;i < builder2.length;i++){
+                builder3.addAll(Arrays.asList(builder2[i].split("\t")));
+            }
+            /* Netscape格式: 域名, 布尔值, 路径, 布尔值, 时间戳, 变量名, 值。
+             * Header实际需要的是变量名和值。
+             * 所以按Tab分割后的数组长度的1/7为变量数量，第n个变量乘6的位置为变量名，乘7的位置则为值。
+             */
+            // step3: 拼接。
+            for(int i = 1;i <= builder3.size()/7; i++){
+                cookie.append(builder3.get(i*7-2));
+                cookie.append("=");
+                cookie.append(builder3.get(i*7-1));
+                if(i != builder3.size()/7){
+                cookie.append("; ")
+                }
+            }
+            
+            
+            Print.basePrint("加载cookie成功！\n");
+        }catch(Exception e){
+            Print.basePrint(new AttributedString("加载cookie.txt失败，请检查cookie.txt路径是否正确且其格式符合标准，可能无法爬取问题。\n", RED), terminal);
+        }
+        
+        
+        
         for(int i = 1;is_end == false ;i++){
             HttpUtil website = null;
             try{
-                String cookie = null;
-                website = HttpUtil.get(url, PARAMS, cookie, HEADERS);
-                // 此方法已经弃用，但由于cookie变量的修改，导致此方法无法成功编译，于是添加了String cookie = null。
+                website = HttpUtil.get(url, null, cookie.toString(), null);
                 switch(website.getStatusCode()){
                     case 200:break;
                     case 403:

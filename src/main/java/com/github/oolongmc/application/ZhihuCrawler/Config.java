@@ -1,5 +1,7 @@
 package com.github.oolongmc.application.ZhihuCrawler;
 
+import java.nio.file.Path;
+
 /**
  * 本类用来处理本软件的配置信息。
  */
@@ -15,10 +17,13 @@ public class Config{
     
     public String curlImpersonatePath;
     
-    public Config(GetMethod getMethod, String lastQuestionUrl, boolean isOver) {
-        this.getMethod = getMethod;
-        this.lastQuestionUrl = lastQuestionUrl;
-        this.isOver = isOver;
+    public static Config getDefaultConfig(){
+        Config tmp = new Config();
+        tmp.getMethod = GetMethod.CHROMR;
+        tmp.lastQuestionUrl = null;
+        tmp.isOver = false;
+        tmp.cookiePath = Path.of("./cookie.txt");
+        tmp.curlImpersonatePath = null;
     }
     
     public enum GetMethod{
