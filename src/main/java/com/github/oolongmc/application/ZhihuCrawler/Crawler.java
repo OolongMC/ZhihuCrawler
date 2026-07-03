@@ -5,7 +5,6 @@ import com.github.oolongmc.aicodes.deepseek.ZhihuQuestion;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Random;
 import java.util.Set;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -67,11 +68,9 @@ public final class Crawler{
     
     /*
      * 直接使用Java自带的方法获取页面，不进行任何配置。
-     * @deprecated 成功率极低。
-     * 现已彻底无法使用，因为cookie改用Netscape格式。
+     * 于0.3版本回归。
      */
-    private static void catchByJavaBaseUrl(String url, Config config, Terminal terminal){
-        boolean is_end = false;
+    public static void catchByJavaBaseUrl(Config config, Terminal terminal){
         StringBuilder cookie = new StringBuilder();
         try{
             String netscapeCookie = Files.readString(Path.of(config.cookiePath));
@@ -104,7 +103,7 @@ public final class Crawler{
                 cookie.append("=");
                 cookie.append(builder3.get(i*7-1));
                 if(i != builder3.size()/7){
-                cookie.append("; ")
+                cookie.append("; ");
                 }
             }
             
@@ -116,10 +115,10 @@ public final class Crawler{
         
         
         
-        for(int i = 1;is_end == false ;i++){
+        for(int i = 1;config.isOver == false ;i++){
             HttpUtil website = null;
             try{
-                website = HttpUtil.get(url, null, cookie.toString(), null);
+                website = HttpUtil.get(config.lastQuestionUrl, null, cookie.toString(), null);
                 switch(website.getStatusCode()){
                     case 200:break;
                     case 403:
@@ -141,7 +140,7 @@ public final class Crawler{
                 continue;
             }
             Print.basePrint("get" + i + ": ");
-            is_end = processJson(website.getResponseBody());
+            processJson(website.getResponseBody(), config, terminal);
             Random random = new Random();
             try{Thread.sleep(3000 + random.nextInt(2001));}catch(InterruptedException e){}
         }
@@ -150,14 +149,14 @@ public final class Crawler{
     /**
      * 暂时待更新，未使用外部程序的方法。
      */
-    private static void catchByParametricSimulationOfChromeCurl(Path customizeApplicationPath){}
+    public static void catchByParametricSimulationOfChromeCurl(Path customizeApplicationPath){}
     
     
     /**
      * 
      */
-    private static void catchByChromeCurl(Path customizeApplicationPath) throws IOException, InterruptedException{
-        String os, appName;
+    public static void catchByChromeCurl(Config config, Terminal terminal) throws IOException, InterruptedException{
+        String os = null;
         String arch = System.getProperty("os.arch");
         if(System.getProperty("os.name").startsWith("Windows")){
             os = "Windows";
@@ -172,7 +171,7 @@ public final class Crawler{
         
         Print.basePrint("系统信息:" + os + "_" + arch + "\n");
         
-        if(customizeApplicationPath == null){
+        if(config.curlImpersonatePath == null){
             applicationPath = Path.of("./Collection/.temp/curl-impersonate-chrome");
             try(InputStream app = Crawler.class.getResourceAsStream("/assets/" + os + "/" + arch + "/curl-impersonate-chrome")){
                 if(app != null){
@@ -188,20 +187,19 @@ public final class Crawler{
                 Print.basePrint(new AttributedString("拷贝可执行文件失败：" + e.getMessage() + "\n", RED), terminal);
             }
         }else{
-            applicationPath = customizeApplicationPath;
+            applicationPath = Path.of(config.curlImpersonatePath);
             // Windows用户必须要手动指定自定义程序，自定义程序必须保证可执行性(包括类Unix系统)以及文件名的正确，所以不用我们负责。
         }
         
-        boolean is_end = false;
-        for(int i = 1;is_end == false ;i++){
+        for(int i = 1;config.isOver == false ;i++){
             
             // 合成调用命令。
             String[] command = new String[CURL_ARGS.length + 4];
             command[0] = applicationPath.toString();
             System.arraycopy(CURL_ARGS, 0, command, 1, CURL_ARGS.length);
-            command[command.length - 3] = url;
+            command[command.length - 3] = config.lastQuestionUrl;
             command[command.length - 2] = "-b";
-            command[command.length - 1] = cookie.toString();
+            command[command.length - 1] = config.cookiePath;
             
             
             ProcessBuilder pb = new ProcessBuilder(command);
@@ -221,7 +219,7 @@ public final class Crawler{
             int exitCode = getJson.waitFor();
             if(exitCode == 0&&!json.toString().isEmpty()){
                 Print.basePrint("get" + i + ": ");
-                is_end = processJson(json.toString());
+                processJson(json.toString(), config, terminal);
                 
             }
             else if(exitCode == 0){
@@ -239,7 +237,7 @@ public final class Crawler{
     }
     
     
-    private static boolean processJson(String json){
+    private static void processJson(String json, Config config, Terminal terminal){
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
         ZhihuQuestion q = null;
@@ -253,12 +251,11 @@ public final class Crawler{
             Print.basePrint(json + "\n");
             
             System.exit(1);
-            return false;// 应付编译器。
         }
         if(q.error != null){
             switch(q.error.code){
                 case 40353:
-                    Print.basePrint(new AttributedString("响应失败，返回内容为未登录，可能是cookie过期或格式错误\n", RED), terminal);
+                    Print.basePrint(new AttributedString("响应失败，返回内容为未登录，可能是cookie过期或格式错误。\n", RED), terminal);
                     System.exit(0);
                     break;
                 case 10003:
@@ -270,16 +267,17 @@ public final class Crawler{
                     System.exit(0);
                     break;
             }
-            return false;// 应付编译器。
         }else{
             try{
-                Files.writeString(Path.of("Collection/" + questionNumber + '_' + q.paging.page + ".json"), json);
+                String questionNumber = config.lastQuestionUrl.replaceAll("https://www.zhihu.com/api/v4/questions/(\\d+)/feeds.*", "$1");
+                Files.writeString(Path.of("Collection/Save/" + questionNumber + "/" + questionNumber + '_' + q.paging.page + ".json"), json);
+                Files.writeString(Path.of("./Collection/config.json"), mapper.writeValueAsString(config));
             }catch(IOException e){
                 Print.basePrint(new AttributedString("文件保存失败" + e.getMessage() + "\n", RED), terminal);
             }
             Print.basePrint("Done.\n");
-            url = q.paging.next.replace("\\u0026", "&");
-            return q.paging.is_end;
+            config.lastQuestionUrl = q.paging.next.replace("\\u0026", "&");
+            config.isOver = q.paging.is_end;
         }
     }
 }

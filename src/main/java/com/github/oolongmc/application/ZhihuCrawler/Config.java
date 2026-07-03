@@ -19,11 +19,12 @@ public class Config{
     
     public static Config getDefaultConfig(){
         Config tmp = new Config();
-        tmp.getMethod = GetMethod.CHROMR;
+        tmp.getMethod = GetMethod.CHROME;
         tmp.lastQuestionUrl = null;
         tmp.isOver = false;
-        tmp.cookiePath = Path.of("./cookie.txt");
+        tmp.cookiePath = "./cookie.txt";
         tmp.curlImpersonatePath = null;
+        return tmp;
     }
     
     public enum GetMethod{
