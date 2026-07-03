@@ -14,11 +14,11 @@
 3. 复制需要捕获的知乎问题的网址，如: `https://www.zhihu.com/question/545705420/answer/2034985112941675122`，再复制`question`后面的数字(545705420)，替换`https://www.zhihu.com/api/v4/questions/XXX/feeds`中的`XXX`，如这个示例替换后为`https://www.zhihu.com/api/v4/questions/545705420/feeds`。
 4. 使用命令: 
 ```bash
-java -jar 下载的Jar文件.jar -c 刚才处理好的网址
+java -jar 下载的Jar文件.jar catch 刚才处理好的网址
 ```
 5. 输出示例：
 ```bash
-root@localhost:~/Build/ZhihuCrawler# java -jar ZhihuCrawler.jar -c https://www.zhihu.com/api/v4/questions/545705420/feeds
+root@localhost:~/Build/ZhihuCrawler# java -jar ZhihuCrawler.jar catch https://www.zhihu.com/api/v4/questions/545705420/feeds
 开始爬取问题545705420。
 方式: 使用curl-impersonate-chrome项目。
 系统信息:Linux_aarch64
@@ -38,18 +38,18 @@ get13: Done.
 get14: Done.
 root@localhost:~/Build/ZhihuCrawler#
 ```
-6.捕获的JSON文件会保存至`Collection/`文件夹中
+6.捕获的JSON文件会保存至`Collection/Save/[问题编号]/`文件夹中
 
 # 注意:
 源代码被打包进了`Jar:/src/`中。
 
-Windows暂时不支持，需要手动下载[curl-impersonate](https://github.com/lwthiker/curl-impersonate)的源代码自行编译，然后自定义curl-impersonate路径。
+Windows暂时不支持使用curl-impersonate-chrome项目模式，需要手动下载[curl-impersonate](https://github.com/lwthiker/curl-impersonate)的源代码自行编译，然后自定义curl-impersonate路径，或修改config.json中的getMethod条目为`URL`。
 
 # 后续更新打算:
 1. 添加阅读捕获文件的功能。
-2. 断点续传(现在其实可以，只要输入的URL是上次存档中的next中的URL)。
+2. 添加使用命令行轻松修改配置文件功能。
 
-使用到的开源项目：
+# 使用到的开源项目：
 
 [JLine](https://jline.org/) : 输出美化。
 

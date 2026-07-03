@@ -70,7 +70,7 @@ public final class Crawler{
      * 直接使用Java自带的方法获取页面，不进行任何配置。
      * 于0.3版本回归。
      */
-    public static void catchByJavaBaseUrl(Config config, Terminal terminal){
+    public static void catchByJavaBaseUrl(Config config, Terminal terminal) throws IOException{
         StringBuilder cookie = new StringBuilder();
         try{
             String netscapeCookie = Files.readString(Path.of(config.cookiePath));
@@ -191,8 +191,7 @@ public final class Crawler{
             // Windows用户必须要手动指定自定义程序，自定义程序必须保证可执行性(包括类Unix系统)以及文件名的正确，所以不用我们负责。
         }
         
-        for(int i = 1;config.isOver == false ;i++){
-            
+        for(int i = 1; !config.isOver; i++){
             // 合成调用命令。
             String[] command = new String[CURL_ARGS.length + 4];
             command[0] = applicationPath.toString();
@@ -201,21 +200,18 @@ public final class Crawler{
             command[command.length - 2] = "-b";
             command[command.length - 1] = config.cookiePath;
             
-            
             ProcessBuilder pb = new ProcessBuilder(command);
             pb.redirectErrorStream(true);
             Process getJson = pb.start();
             
             StringBuilder json = new StringBuilder();
-            Thread readerThread = new Thread(() -> {// Lambda表达式
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(getJson.getInputStream()))){
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        json.append(line).append("\n");
-                    }
-                }catch(IOException e){}
-            });
-            readerThread.start();
+            
+            try(BufferedReader reader = new BufferedReader(new InputStreamReader(getJson.getInputStream()))){
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    json.append(line).append("\n");
+                }
+            };
             int exitCode = getJson.waitFor();
             if(exitCode == 0&&!json.toString().isEmpty()){
                 Print.basePrint("get" + i + ": ");
@@ -237,7 +233,7 @@ public final class Crawler{
     }
     
     
-    private static void processJson(String json, Config config, Terminal terminal){
+    private static void processJson(String json, Config config, Terminal terminal) throws IOException{
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
         ZhihuQuestion q = null;
@@ -271,13 +267,13 @@ public final class Crawler{
             try{
                 String questionNumber = config.lastQuestionUrl.replaceAll("https://www.zhihu.com/api/v4/questions/(\\d+)/feeds.*", "$1");
                 Files.writeString(Path.of("Collection/Save/" + questionNumber + "/" + questionNumber + '_' + q.paging.page + ".json"), json);
-                Files.writeString(Path.of("./Collection/config.json"), mapper.writeValueAsString(config));
             }catch(IOException e){
                 Print.basePrint(new AttributedString("文件保存失败" + e.getMessage() + "\n", RED), terminal);
             }
             Print.basePrint("Done.\n");
             config.lastQuestionUrl = q.paging.next.replace("\\u0026", "&");
             config.isOver = q.paging.is_end;
+            Files.writeString(Path.of("./Collection/config.json"), mapper.writeValueAsString(config));
         }
     }
 }

@@ -33,3 +33,21 @@
 # 2026.6.30
 
 一点点东西，感觉又要重新写软件的使用逻辑了，斯，我也不知道该怎么描述这次写的内容。虽然现在还编译不了，但我还是先git commit -m吧。
+
+# 2026.7.1
+
+重写了`com.github.oolongmc.application.Main`的逻辑。
+
+# 2026.7.2
+
+维护了`com.github.oolongmc.application.ZhihuCrawler.catchByJavaBaseUrl(Config config, Terminal terminal)`。
+
+# 2026.7.3
+
+0.3版本更新内容：
+
+1. 祝贺`com.github.oolongmc.application.ZhihuCrawler.catchByJavaBaseUrl(Config config, Terminal terminal)`方法的回归！
+2. 更新内容: 
+   - 添加了配置文件，以及断点续传功能。
+   - 调整了命令行参数。
+

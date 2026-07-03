@@ -82,9 +82,10 @@ public class Main{
         if(args.length == 0){
             if(config.lastQuestionUrl != null && config.isOver == false){
                 chooseCatchWayByConfig(config.lastQuestionUrl, config, terminal);
+                return;
             }else{
                 Print.basePrint(HELP);
-                System.exit(0);
+                return;
             }
         }
         switch(args[0]){
@@ -111,7 +112,7 @@ public class Main{
     
     private static void chooseCatchWayByConfig(String url, Config config, Terminal terminal) throws IOException, InterruptedException{
         String questionNumber = url.replaceAll("https://www.zhihu.com/api/v4/questions/(\\d+)/feeds.*", "$1");
-        Files.createDirectories(Path.of("./Collection/" + questionNumber + "/"));
+        Files.createDirectories(Path.of("./Collection/Save/" + questionNumber + "/"));
         config.lastQuestionUrl = url;
         config.isOver = false;
         ObjectMapper mapper = new ObjectMapper();

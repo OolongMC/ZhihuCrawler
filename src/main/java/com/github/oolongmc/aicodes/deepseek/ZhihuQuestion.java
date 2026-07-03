@@ -63,6 +63,8 @@ public class ZhihuQuestion {
         public String attached_info;
         /** 附件信息（视频等） */
         public Attachment attachment;
+        /** 创作声明（如"包含虚构内容"等） */
+        public String creation_disclaimer;
         /** 作者信息 */
         public Author author;
         /** 业务类型 */
