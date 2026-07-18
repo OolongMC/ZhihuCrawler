@@ -1,16 +1,17 @@
 package com.github.oolongmc.application.ZhihuCrawler;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
@@ -103,6 +104,7 @@ public class Main{
                 break;
             case "read":
                 Print.basePrint("未来计划添加阅读功能。\n");
+                //Reader.render(null, terminal);
                 break;
             default:
                 Print.basePrint("不合法参数。\n");

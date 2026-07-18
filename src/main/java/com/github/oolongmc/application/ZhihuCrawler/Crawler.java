@@ -1,29 +1,28 @@
 package com.github.oolongmc.application.ZhihuCrawler;
 
-import com.github.oolongmc.aicodes.grok.HttpUtil;
-import com.github.oolongmc.aicodes.deepseek.ZhihuQuestion;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStyle;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.Random;
-import java.util.Set;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.util.Random;
+import java.util.Set;
+import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.oolongmc.aicodes.deepseek.ZhihuQuestion;
+import com.github.oolongmc.aicodes.grok.HttpUtil;
 
 
 /**
@@ -227,8 +226,10 @@ public final class Crawler{
                 Print.basePrint(new AttributedString("尝试重新访问。\n", PINK), terminal);
                 continue;
             }
-            Random random = new Random();
-            try{Thread.sleep(3000 + random.nextInt(2001));}catch(InterruptedException e){}
+            if(!config.isOver){
+                Random random = new Random();
+                try{Thread.sleep(3000 + random.nextInt(2001));}catch(InterruptedException e){}
+            }
         }
     }
     
@@ -240,14 +241,22 @@ public final class Crawler{
         try{
             q = mapper.readValue(json, ZhihuQuestion.class);
         }catch(JsonProcessingException e){
-            Print.basePrint(new AttributedString("处理JSON失败，请报告Bug。\n", RED), terminal);
-            Print.basePrint(new AttributedString("原因：" + e.getMessage() + "\n", PINK), terminal);
-            e.printStackTrace();
-            Print.basePrint(new AttributedString("响应内容:\n", PINK), terminal);
-            Print.basePrint(json + "\n");
             
-            System.exit(1);
+            if(e.getMessage().startsWith("Unrecognized field")){
+                
+            }
+            else{
+                Print.basePrint(new AttributedString("处理JSON失败，请报告Bug。\n", RED), terminal);
+                Print.basePrint(new AttributedString("原因：" + e.getMessage() + "\n", PINK), terminal);
+                e.printStackTrace();
+                Print.basePrint(new AttributedString("响应内容:\n", PINK), terminal);
+                Print.basePrint(json + "\n");
+                
+                System.exit(1);
+            }
         }
+        
+        
         if(q.error != null){
             switch(q.error.code){
                 case 40353:

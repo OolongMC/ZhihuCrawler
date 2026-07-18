@@ -74,7 +74,8 @@ tasks.register("awa") {
         "build",
         "releases",
         "Collection",
-        "OolongPrivateFiles"
+        "OolongPrivateFiles",
+        ".git/objects"
     )
     
     // 需要排除的子路径

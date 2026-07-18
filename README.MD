@@ -5,6 +5,8 @@
 
 这是我写的第一个实用性的项目，作者是一个连Java都没学完的初三生，所以只能写成这样了。
 
+> <s>我没有电脑，代码是用MT管理器+Termux采用Proot容器的Ubuntu搓出来的，是在太难受了，没有语法检测，甚至有些问题JAVAC没扫出来，编译过了，运行时也没有抛出异常，我搞半天不知道哪里有问题，但运行结果就是不解人意，我也不知道为什么，是ARM64的JDK有问题吗。只有我使用VNC打开CS CODE才看到红色位置，我人傻了，为什么编译和运行都没有抛出这个问题。用VS CODE一看，所以文件都或多或少带点黄色，见谅。</s>
+
 有部分AI写的代码，都标注出来了。
 
 # 使用方法：
@@ -46,7 +48,7 @@ root@localhost:~/Build/ZhihuCrawler#
 Windows暂时不支持使用curl-impersonate-chrome项目模式，需要手动下载[curl-impersonate](https://github.com/lwthiker/curl-impersonate)的源代码自行编译，然后自定义curl-impersonate路径，或修改config.json中的getMethod条目为`URL`。
 
 # 后续更新打算:
-1. 添加阅读捕获文件的功能。
+1. 添加阅读捕获文件的功能(短期内放弃了，原因参见上方应用的话。真的是服了。等我学了图形化再添加，我再也不想碰命令行了。)。
 2. 添加使用命令行轻松修改配置文件功能。
 
 # 使用到的开源项目：

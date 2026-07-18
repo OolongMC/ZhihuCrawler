@@ -43,8 +43,7 @@ import java.io.File;
  * 1. 请求失败，会直接抛出异常。
  * 2. 请求成功，但是返回502等需要调用者自己检查。
  * 
- * @deprecated 成功率极低。
- * 现已彻底无法使用，因为cookie改用Netscape格式。
+ *
  */
 public class HttpUtil {
 
