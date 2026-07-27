@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
@@ -243,7 +245,16 @@ public final class Crawler{
         }catch(JsonProcessingException e){
             
             if(e.getMessage().startsWith("Unrecognized field")){
+                Matcher object = Pattern.compile("Unrecognized field \"(\\S+)\" \\(.+?\\$(\\S+)\\)").matcher(e.getMessage());
                 
+                object.find();
+                String group1 = object.group(1);
+                String group2 = object.group(2);
+                
+                
+                Print.basePrint(new AttributedString("未收录的字段\"" + group1 + "\"，位于对象类型: " + group2 + "，位于" + config.lastQuestionUrl + "\n", PINK), terminal);
+                Print.basePrint(new AttributedString("请报告至https://github.com/OolongMC/ZhihuCrawler/issues并等待更新，或者你可以尝试直接修改com.github.oolongmc.aicodes.deepseek.ZhihuQuestion，添加此字段。\n", PINK), terminal);
+                System.exit(1);
             }
             else{
                 Print.basePrint(new AttributedString("处理JSON失败，请报告Bug。\n", RED), terminal);

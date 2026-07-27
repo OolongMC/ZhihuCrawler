@@ -436,8 +436,10 @@ public class ZhihuQuestion {
     /**
      * 反应指令
      */
-    public static class ReactionInstruction {}
-
+    public static class ReactionInstruction {
+        public String REACTION_CONTENT_SEGMENT_LIKE;
+    }
+    
     /**
      * 关系信息（与Reaction中的不同）
      */
