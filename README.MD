@@ -1,3 +1,15 @@
+> **提醒:**
+>
+> 也许我应该放弃，或是换种方法。
+>
+> 目前的方法如果遇到很长的回答只会获得摘要，我不论怎么样都找不到完整回答的API地址。
+> 	
+> 如果有人有办法的话，可以给我发个Issue。
+> 
+> 或者等到之后我有时间，直接让它解析HTML。
+> 
+> 但我会尽可能的找到API，因为我发现使用API的话，好像可以访问到已经被删除的问题。
+
 # **ZhihuCrawler**
 ******
 
@@ -13,10 +25,10 @@
 
 1. 在[Releases](https://github.com/OolongMC/ZhihuCrawler/releases/new)页面下载最新的Jar文件。
 2. 打开浏览器，使用插件(如手机Edge也可以使用的[Cookie-Editor](https://github.com/Moustachauve/cookie-editor)插件)导出Netscape格式的cookie文件，保存为`cookie.txt`并与Jar文件放在同一个目录中。
-3. 复制需要捕获的知乎问题的网址，如: `https://www.zhihu.com/question/545705420/answer/2034985112941675122`，再复制`question`后面的数字(545705420)，替换`https://www.zhihu.com/api/v4/questions/XXX/feeds`中的`XXX`，如这个示例替换后为`https://www.zhihu.com/api/v4/questions/545705420/feeds`。
+3. 复制需要捕获的知乎问题的网址，如: `https://www.zhihu.com/question/545705420/answer/2034985112941675122`。
 4. 使用命令: 
 ```bash
-java -jar 下载的Jar文件.jar catch 刚才处理好的网址
+java -jar 下载的Jar文件.jar catch https://www.zhihu.com/question/545705420/answer/2034985112941675122
 ```
 5. 输出示例：
 ```bash
