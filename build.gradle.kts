@@ -61,10 +61,10 @@ tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJ
 }
 
 tasks.named("shadowJar") {
-    finalizedBy("awa")
+    finalizedBy("打包源码进Jar喵")
 }
 
-tasks.register("awa") {
+tasks.register("打包源码进Jar喵") {
     dependsOn("shadowJar")
     
     val sourceTargetDir = "src"
@@ -75,7 +75,8 @@ tasks.register("awa") {
         "releases",
         "Collection",
         "OolongPrivateFiles",
-        ".git/objects"
+        ".git/objects",
+        "src/main/resources"
     )
     
     // 需要排除的子路径
@@ -153,8 +154,8 @@ tasks.register("awa") {
     }
 }
 
-// awa 执行完后触发 buildInfo
-tasks.named("awa") {
+// 打包源码进Jar喵 执行完后触发 buildInfo
+tasks.named("打包源码进Jar喵") {
     finalizedBy("buildInfo")
 }
 
